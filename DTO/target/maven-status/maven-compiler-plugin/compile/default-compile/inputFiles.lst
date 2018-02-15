@@ -1,0 +1,8 @@
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/Request.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/request/MessageRequest.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/Response.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/User.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/response/MessageResponse.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/response/LoginResponse.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/Message.java
+/home/thecower/Projects/Messenger/DTO/src/main/java/com/nihatalim/messenger/dto/request/LoginRequest.java

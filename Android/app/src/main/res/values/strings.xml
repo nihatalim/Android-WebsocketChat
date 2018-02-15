@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Messenger</string>
+    <string name="endpoint_url">ws://aws.nihatalim.com:8080/channel</string>
+
+    <string name="closestatus_normal">1000</string>
+    <string name="closereason_new">Creating new connection</string>
+    <string name="closereason_serviceshutdown">Service shutdown</string>
+
+    <string name="la_name">Name</string>
+    <string name="la_login">Login</string>
+
+</resources>
