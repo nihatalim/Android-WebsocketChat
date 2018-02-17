@@ -1,6 +1,7 @@
 package com.nihatalim.messenger.helpers;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 
 import com.nihatalim.messenger.business.Facade;
@@ -20,7 +21,7 @@ public class App extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
-        App.facade = new Facade();
+        App.facade = new Facade(this.getContext());
         startService(new Intent(this, SocketService.class));
     }
 
@@ -30,4 +31,7 @@ public class App extends Application{
         stopService(new Intent(this, SocketService.class));
     }
 
+    private Context getContext(){
+        return this;
+    }
 }

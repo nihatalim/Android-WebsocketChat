@@ -1,6 +1,9 @@
 package com.nihatalim.messenger.activities;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -14,14 +17,15 @@ import com.nihatalim.genericrecycle.business.GenericRecycleAdapter;
 import com.nihatalim.genericrecycle.interfaces.OnBind;
 import com.nihatalim.genericrecycle.interfaces.OnCreate;
 import com.nihatalim.messenger.R;
+import com.nihatalim.messenger.business.database.models.Message;
+import com.nihatalim.messenger.business.database.models.Message_;
 import com.nihatalim.messenger.business.interfaces.Connect;
-import com.nihatalim.messenger.dto.Message;
 import com.nihatalim.messenger.dto.Request;
 import com.nihatalim.messenger.dto.request.MessageRequest;
 import com.nihatalim.messenger.dto.response.MessageResponse;
 import com.nihatalim.messenger.helpers.App;
-import com.nihatalim.messenger.services.SocketService;
 import com.nihatalim.messenger.views.MessageHolder;
+import com.nihatalim.messenger.views.MessageViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivSend;
     private EditText etMessage;
 
-    private List<Message> messages = null;
-
     private GenericRecycleAdapter<MessageHolder, Message> recyclerAdapter = null;
 
     private SimpleDateFormat dateFormat = null;
+
+    private MessageViewModel messageViewModel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +56,7 @@ public class MainActivity extends AppCompatActivity {
         this.ivSend = findViewById(R.id.ivSend);
         this.etMessage = findViewById(R.id.etMessage);
 
-        this.messages = new ArrayList<>();
-        this.recyclerAdapter = new GenericRecycleAdapter<>(this.messages, getContext(), R.layout.message_element);
+        this.recyclerAdapter = new GenericRecycleAdapter<>(App.facade.getDbFacade().getMessageBox().query().orderDesc(Message_.date).build().find(0,50), getContext(), R.layout.message_element);
 
         this.recyclerAdapter.setOnCreateInterface(new OnCreate<MessageHolder>() {
             @Override
@@ -65,21 +68,29 @@ public class MainActivity extends AppCompatActivity {
         this.recyclerAdapter.setOnBindInterface(new OnBind<MessageHolder>() {
             @Override
             public void OnBind(MessageHolder messageHolder, int i) {
-                messageHolder.tvName.setText(recyclerAdapter.getObjectList().get(i).getOwner().getName());
-                messageHolder.tvMessage.setText(recyclerAdapter.getObjectList().get(i).getMessage());
-                messageHolder.tvDate.setText(dateFormat.format(recyclerAdapter.getObjectList().get(i).getDate()));
+                messageHolder.tvName.setText(recyclerAdapter.getObjectList().get(i).owner.getTarget().name);
+                messageHolder.tvMessage.setText(recyclerAdapter.getObjectList().get(i).message);
+                messageHolder.tvDate.setText(dateFormat.format(recyclerAdapter.getObjectList().get(i).date));
             }
         });
 
         this.recyclerAdapter.build(this.recycler);
 
-        this.recyclerAdapter.getLayoutManager().setReverseLayout(true);
+        this.messageViewModel = ViewModelProviders.of(this).get(MessageViewModel.class);
+        this.messageViewModel.getMessageLiveData(App.facade.getDbFacade().getMessageBox()).observe(this, new Observer<List<com.nihatalim.messenger.business.database.models.Message>>() {
+            @Override
+            public void onChanged(@Nullable List<com.nihatalim.messenger.business.database.models.Message> messages) {
+                recyclerAdapter.setObjectList(messages);
+                recyclerAdapter.notifyDataSetChanged();
+                recyclerAdapter.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount()-1);
+            }
+        });
 
         this.ivSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Message message = new Message(App.user, etMessage.getText().toString(), new Date());
+                com.nihatalim.messenger.dto.Message message = new com.nihatalim.messenger.dto.Message(App.user, etMessage.getText().toString(), new Date());
 
                 Request request = new Request();
                 request.setmRequestType(Request.RequestType.MessageRequest);
@@ -88,20 +99,6 @@ public class MainActivity extends AppCompatActivity {
                 etMessage.setText("");
             }
         });
-
-        App.service.getInvoker().put("MessageResponse", new Connect<MessageResponse>() {
-            @Override
-            public void run(final MessageResponse response) {
-                recyclerAdapter.getObjectList().add(response.getMessage());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-        });
-
     }
 
 

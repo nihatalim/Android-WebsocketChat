@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.test.mock.MockApplication;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +15,6 @@ import com.nihatalim.messenger.dto.Request;
 import com.nihatalim.messenger.dto.request.LoginRequest;
 import com.nihatalim.messenger.dto.response.LoginResponse;
 import com.nihatalim.messenger.helpers.App;
-import com.nihatalim.messenger.services.SocketService;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etName;
