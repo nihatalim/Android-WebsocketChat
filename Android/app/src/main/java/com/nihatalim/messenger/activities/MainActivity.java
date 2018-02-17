@@ -3,16 +3,25 @@ package com.nihatalim.messenger.activities;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.view.DragEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.daimajia.androidanimations.library.Techniques;
 import com.google.gson.GsonBuilder;
+import com.nihatalim.dragmanagement.business.DragManager;
+import com.nihatalim.dragmanagement.helpers.ViewData;
+import com.nihatalim.dragmanagement.interfaces.OnDrag;
 import com.nihatalim.genericrecycle.business.GenericRecycleAdapter;
 import com.nihatalim.genericrecycle.interfaces.OnBind;
 import com.nihatalim.genericrecycle.interfaces.OnCreate;
@@ -45,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
 
     private MessageViewModel messageViewModel = null;
 
+    private ImageView deleteMenuItem = null;
+    private DragManager dragManager = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,12 +68,76 @@ public class MainActivity extends AppCompatActivity {
         this.ivSend = findViewById(R.id.ivSend);
         this.etMessage = findViewById(R.id.etMessage);
 
-        this.recyclerAdapter = new GenericRecycleAdapter<>(App.facade.getDbFacade().getMessageBox().query().orderDesc(Message_.date).build().find(0,50), getContext(), R.layout.message_element);
+        this.deleteMenuItem = findViewById(R.id.menu_delete);
+        this.deleteMenuItem.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage("Tüm mesajlar silinsin mi?");
+                builder.setPositiveButton("Sil", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        App.facade.getDbFacade().getUserBox().removeAll();
+                        App.facade.getDbFacade().getMessageBox().removeAll();
+                    }
+                });
+                builder.setNegativeButton("Hayır", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.show();
+                return false;
+            }
+        });
+        this.dragManager = DragManager.init(this.deleteMenuItem).OnDrag(new OnDrag<ViewData>(){
+
+            @Override
+            public void DragStarted(View view, DragEvent dragEvent, ViewData viewData) {
+
+            }
+
+            @Override
+            public void DragEntered(View view, DragEvent dragEvent, ViewData viewData) {
+
+            }
+
+            @Override
+            public void DragLocation(View view, DragEvent dragEvent, ViewData viewData) {
+
+            }
+
+            @Override
+            public void DragExited(View view, DragEvent dragEvent, ViewData viewData) {
+
+            }
+
+            @Override
+            public void Drop(View view, DragEvent dragEvent, ViewData viewData) {
+                int position = ((int) viewData.getData());
+                App.facade.getDbFacade().getMessageBox().remove(recyclerAdapter.getObjectList().get(position));
+            }
+
+            @Override
+            public void DragEnded(View view, DragEvent dragEvent, ViewData viewData) {
+
+            }
+        }).build(Techniques.BounceIn);
+
+        this.recyclerAdapter = new GenericRecycleAdapter<>(App.facade.getDbFacade().getMessageBox().query().orderDesc(Message_.date).build().find(0, 50), getContext(), R.layout.message_element);
 
         this.recyclerAdapter.setOnCreateInterface(new OnCreate<MessageHolder>() {
             @Override
             public MessageHolder onCreate(ViewGroup viewGroup, int i, View view) {
-                return new MessageHolder(view);
+                final MessageHolder holder = new MessageHolder(view);
+                view.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return dragManager.drag(view, holder.getPosition());
+                    }
+                });
+                return holder;
             }
         });
 
@@ -82,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(@Nullable List<com.nihatalim.messenger.business.database.models.Message> messages) {
                 recyclerAdapter.setObjectList(messages);
                 recyclerAdapter.notifyDataSetChanged();
-                recyclerAdapter.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount()-1);
+                recyclerAdapter.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount() - 1);
             }
         });
 
@@ -102,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private Context getContext(){
+    private Context getContext() {
         return this;
     }
 }
