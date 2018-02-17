@@ -3,11 +3,6 @@ package com.nihatalim.messenger.helpers;
 import android.util.Log;
 
 import com.nihatalim.messenger.business.ResponseHandler;
-import com.nihatalim.messenger.business.interfaces.Connect;
-import com.nihatalim.messenger.services.SocketService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -20,17 +15,10 @@ import okhttp3.WebSocketListener;
 public class SocketListener extends WebSocketListener{
     private static String TAG = "SocketListener";
 
-    private SocketService service = null;
-
     private ResponseHandler responseHandler = null;
 
-    private SocketListener() {
+    public SocketListener() {
         this.responseHandler = new ResponseHandler();
-    }
-
-    public SocketListener(SocketService service) {
-        this();
-        this.service = service;
     }
 
     @Override
@@ -52,15 +40,13 @@ public class SocketListener extends WebSocketListener{
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e(TAG, "WebSocket failure. Failure message: " + t.getMessage());
-
         try {
             // Wait 1 sec
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        this.service.connect();
+        App.service.connect();
     }
 
 

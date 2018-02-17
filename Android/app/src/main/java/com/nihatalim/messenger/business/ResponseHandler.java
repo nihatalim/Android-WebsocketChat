@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.nihatalim.messenger.dto.Response;
 import com.nihatalim.messenger.dto.response.LoginResponse;
 import com.nihatalim.messenger.dto.response.MessageResponse;
+import com.nihatalim.messenger.helpers.App;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,10 +18,7 @@ import okhttp3.WebSocket;
 
 public class ResponseHandler {
 
-    private Facade facade = null;
-
     public ResponseHandler() {
-        this.facade = new Facade();
     }
 
     public void handle(WebSocket webSocket, String text) {
@@ -43,12 +41,12 @@ public class ResponseHandler {
         switch (type) {
             case LoginResponse:
                 LoginResponse lp = new Gson().fromJson(jsonResponse.toString(), LoginResponse.class);
-                this.facade.login(lp, webSocket);
+                App.facade.login(lp, webSocket);
                 break;
 
             case MessageResponse:
                 MessageResponse messageResponse = new GsonBuilder().setDateFormat("HH:mm:ss dd/MM/yyyy").create().fromJson(jsonResponse.toString(), MessageResponse.class);
-                this.facade.message(messageResponse, webSocket);
+                App.facade.message(messageResponse, webSocket);
                 break;
 
         }

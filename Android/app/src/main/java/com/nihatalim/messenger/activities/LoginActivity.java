@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Request request = new Request(Request.RequestType.LoginRequest,new LoginRequest(etName.getText().toString()));
-                SocketService.iFace.put("LoginResponse", new Connect<LoginResponse>() {
+                App.service.getInvoker().put("LoginResponse", new Connect<LoginResponse>() {
                     @Override
                     public void run(final LoginResponse response) {
                         runOnUiThread(new Runnable() {
@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
                         });
                     }
                 });
-                SocketService.socket.send(new Gson().toJson(request));
+                App.service.getSocket().send(new Gson().toJson(request));
             }
         });
     }

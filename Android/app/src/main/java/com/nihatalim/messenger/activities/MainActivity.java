@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nihatalim.genericrecycle.business.GenericRecycleAdapter;
 import com.nihatalim.genericrecycle.interfaces.OnBind;
@@ -18,7 +17,6 @@ import com.nihatalim.messenger.R;
 import com.nihatalim.messenger.business.interfaces.Connect;
 import com.nihatalim.messenger.dto.Message;
 import com.nihatalim.messenger.dto.Request;
-import com.nihatalim.messenger.dto.User;
 import com.nihatalim.messenger.dto.request.MessageRequest;
 import com.nihatalim.messenger.dto.response.MessageResponse;
 import com.nihatalim.messenger.helpers.App;
@@ -86,12 +84,12 @@ public class MainActivity extends AppCompatActivity {
                 Request request = new Request();
                 request.setmRequestType(Request.RequestType.MessageRequest);
                 request.setmRequest(new MessageRequest(message));
-                SocketService.socket.send(new GsonBuilder().setDateFormat("HH:mm:ss dd/MM/yyyy").create().toJson(request));
+                App.service.getSocket().send(new GsonBuilder().setDateFormat("HH:mm:ss dd/MM/yyyy").create().toJson(request));
                 etMessage.setText("");
             }
         });
 
-        SocketService.iFace.put("MessageResponse", new Connect<MessageResponse>() {
+        App.service.getInvoker().put("MessageResponse", new Connect<MessageResponse>() {
             @Override
             public void run(final MessageResponse response) {
                 recyclerAdapter.getObjectList().add(response.getMessage());
