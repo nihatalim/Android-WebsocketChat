@@ -10,6 +10,8 @@ Backend project is Spring Boot application. You can easily export an executable 
 ```
 
 # Android
+![Alt Text](https://github.com/nihatalim/Android-WebsocketChat/raw/master/example.gif)
+
 You be able to compile and run without configuration this Android project. There is a test backend application. You can change in strings.xml.
 
 ```
